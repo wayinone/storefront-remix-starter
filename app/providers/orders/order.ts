@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { QueryOptions, sdk } from '../../graphqlWrapper';
-import { CreateAddressInput, CreateCustomerInput } from '~/generated/graphql';
+import { CreateAddressInput, CreateCustomerInput, Order, OrderLineCustomFields } from '~/generated/graphql';
 
 export function getActiveOrder(options: QueryOptions) {
   return sdk
@@ -17,12 +17,14 @@ export function getOrderByCode(code: string, options: QueryOptions) {
 export function addItemToOrder(
   productVariantId: string,
   quantity: number,
+  customFields: OrderLineCustomFields | undefined,
   options: QueryOptions,
 ) {
   return sdk.addItemToOrder(
     {
       productVariantId,
       quantity,
+      customFields: customFields ? customFields : undefined,
     },
     options,
   );
@@ -109,8 +111,8 @@ gql`
 `;
 
 gql`
-  mutation addItemToOrder($productVariantId: ID!, $quantity: Int!) {
-    addItemToOrder(productVariantId: $productVariantId, quantity: $quantity) {
+  mutation addItemToOrder($productVariantId: ID!, $quantity: Int!, $customFields: OrderLineCustomFieldsInput) {
+    addItemToOrder(productVariantId: $productVariantId, quantity: $quantity, customFields: $customFields) {
       ...OrderDetail
       ... on ErrorResult {
         errorCode

@@ -56,8 +56,9 @@ The in the storefront, to be able to use this new field in `routes.product.$slug
 
 Note that in `./codegen.yml` there is a `document` option that will glob all the specified (*.tsx or *.ts) file that has `gql` tag and will generate type for them.
 
-Also note, in `http://localhost:3000/shop-api` there is also a `Query.Product` that is for the backend UI, and will not be used here. I.e. the
-mutations, queries in the api will not join the codegen operataion. Only the schema and query and mutation with `gql` tag that defined in the `./codegen.yml`-> `document` will participate the `codegen` operation.
+Also note, in `http://localhost:3000/shop-api` there is also a `Query.Product` that is defined by the backend UI.
+Note that in the storefront we need to define the mutation again from client side. 
+Note that the backend mutations, queries in the api will not join the codegen operataion. Only the schema and query and mutation with `gql` tag that defined in the `./codegen.yml`-> `document` will participate the `codegen` operation.
 
 ## Development
 

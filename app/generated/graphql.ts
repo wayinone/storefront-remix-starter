@@ -3725,6 +3725,7 @@ export type SetOrderShippingMethodMutation = { __typename?: 'Mutation', setOrder
 export type AddItemToOrderMutationVariables = Exact<{
   productVariantId: Scalars['ID'];
   quantity: Scalars['Int'];
+  customFields?: InputMaybe<OrderLineCustomFieldsInput>;
 }>;
 
 
@@ -4314,8 +4315,12 @@ export const SetOrderShippingMethodDocument = gql`
 }
     ${OrderDetailFragmentDoc}`;
 export const AddItemToOrderDocument = gql`
-    mutation addItemToOrder($productVariantId: ID!, $quantity: Int!) {
-  addItemToOrder(productVariantId: $productVariantId, quantity: $quantity) {
+    mutation addItemToOrder($productVariantId: ID!, $quantity: Int!, $customFields: OrderLineCustomFieldsInput) {
+  addItemToOrder(
+    productVariantId: $productVariantId
+    quantity: $quantity
+    customFields: $customFields
+  ) {
     ...OrderDetail
     ... on ErrorResult {
       errorCode
