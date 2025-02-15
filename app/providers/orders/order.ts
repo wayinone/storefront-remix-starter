@@ -205,6 +205,14 @@ gql`
           slug
         }
       }
+      customFields {
+        text_top
+        text_bottom
+        font_top
+        font_bottom
+        primary_color
+        base_color
+      }
     }
     payments {
       id

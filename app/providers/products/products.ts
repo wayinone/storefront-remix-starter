@@ -62,6 +62,9 @@ export const detailedProductFragment = gql`
         preview
       }
     }
+    customFields {
+      customizableOption
+    }
   }
 `;
 

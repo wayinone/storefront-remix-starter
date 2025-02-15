@@ -38,6 +38,9 @@ export async function loader({ params, request }: DataFunctionArgs) {
       status: 404,
     });
   }
+  
+  const customizableOption = product.customFields?.customizableOption;
+
   const sessionStorage = await getSessionStorage();
   const session = await sessionStorage.getSession(
     request?.headers.get('Cookie'),
@@ -68,6 +71,8 @@ export default function ProductSlug() {
     return <div>{t('product.notFound')}</div>;
   }
 
+  
+
   const findVariantById = (id: string) =>
     product.variants.find((v) => v.id === id);
 
@@ -83,6 +88,8 @@ export default function ProductSlug() {
     activeOrder?.lines.find((l) => l.productVariant.id === selectedVariantId)
       ?.quantity ?? 0;
 
+  
+    
   const asset = product.assets[0];
   const brandName = product.facetValues.find(
     (fv) => fv.facet.code === 'brand',

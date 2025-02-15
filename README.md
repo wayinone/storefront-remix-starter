@@ -23,6 +23,42 @@ General things missing:
 
 **Contributions welcome!**
 
+## CustomFields
+
+If you add custom fields in the backend. e.g. For entity `Product`, you added a customField `customizableOption` (in the backend repo's `vendure-config.ts`) as follows:
+```
+export const config: VendureConfig = {
+...
+customFields: { 
+    Product: [
+            {
+                name: 'customizableOption',
+                type: 'string',
+                defaultValue: 'none',  // the string used here (e.g. 'doubleAS') will be used in the storefront to have the correct customizable options
+                label: [{ languageCode: LanguageCode.en, value: 'Customizable Option' }],
+                public: true,
+            }
+        ],
+  ...
+  }
+}
+```
+
+The in the storefront, to be able to use this new field in `routes.product.$slug`, you needs to do:
+1. spin up the backend server so that `localhost:3000/shop-api` is alive
+2. Start from where we want to use the new field (in `routes.product.$slug`), since the return of `getProductBySlug` is defined at `./app/providers/products/products.ts` -> `sdk.product` (Line 17), we need to update the `gql` query about `product`, which means we need to add the following lines inside of `detailedProductFragment` gql query:
+  ```
+  customFields {
+      customizableOption
+  }
+  ```
+3. Then we need to run `yarn generate` to do the codegen to update the type of `product` so that it has the new field.
+
+Note that in `./codegen.yml` there is a `document` option that will glob all the specified (*.tsx or *.ts) file that has `gql` tag and will generate type for them.
+
+Also note, in `http://localhost:3000/shop-api` there is also a `Query.Product` that is for the backend UI, and will not be used here. I.e. the
+mutations, queries in the api will not join the codegen operataion. Only the schema and query and mutation with `gql` tag that defined in the `./codegen.yml`-> `document` will participate the `codegen` operation.
+
 ## Development
 
 1. Clone this repo
@@ -44,9 +80,11 @@ If you're looking for V1 support, [75eb880](https://github.com/vendure-ecommerce
 #### Code Generation
 
 Whenever the Graphql documents (the constants using the `gql` tag) in the [./app/providers](./app/providers) dir changes,
-you should run `yarn generate` to generate new sdk definitions.
+you should run `yarn generate` (or `npm run generate`) to generate new sdk definitions from `./codegen.yml`.
 
 For a more detailed guide on how to work with code generation, check the wiki about [querying custom fields](https://github.com/vendure-ecommerce/storefront-remix-starter/wiki/Querying-custom-fields).
+
+Or [Vendure doc about codegen](https://docs.vendure.io/guides/storefront/codegen/)
 
 #### Local
 
