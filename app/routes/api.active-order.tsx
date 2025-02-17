@@ -14,6 +14,7 @@ import {
   ErrorCode,
   ErrorResult,
   OrderDetailFragment,
+  OrderLineCustomFieldsInput,
 } from '~/generated/graphql';
 import { getSessionStorage } from '~/sessions';
 import { shippingFormDataIsValid } from '~/utils/validation';
@@ -24,6 +25,26 @@ export async function loader({ request }: DataFunctionArgs) {
   return {
     activeOrder: await getActiveOrder({ request }),
   };
+}
+
+// Note that typescript type is not available at runtime, so we need to define the keys manually here
+const keys: (keyof OrderLineCustomFieldsInput)[] = [
+  'text_top', 'text_bottom', 'font_top', 'font_bottom', 'primary_color', 'base_color'
+];
+
+function getCustomFieldsFromRequestBody(
+  body: FormData,
+): OrderLineCustomFieldsInput | undefined {
+  const customFields: OrderLineCustomFieldsInput = {};
+
+  keys.forEach((key) => {
+    const value = body.get(key);
+    if (value) {
+      customFields[key] = value as string;
+    }
+  });
+
+  return customFields;
 }
 
 export async function action({ request, params }: DataFunctionArgs) {
@@ -125,12 +146,21 @@ export async function action({ request, params }: DataFunctionArgs) {
     case 'addItemToOrder': {
       const variantId = body.get('variantId')?.toString();
       const quantity = Number(body.get('quantity')?.toString() ?? 1);
+      // if customField is empty, then use getCustomFieldsFromRequestBody to get the custom fields
+      // else use the customFields from the request body
+
+      // const customFields: OrderLineCustomFieldsInput | undefined = body.get('customFields')
+      //   ? JSON.parse(body.get('customFields') as string)
+      //   : undefined;
+      const customFields: OrderLineCustomFieldsInput | undefined =
+        getCustomFieldsFromRequestBody(body);
+      
       if (!variantId || !(quantity > 0)) {
         throw new Error(
           `Invalid input: variantId ${variantId}, quantity ${quantity}`,
         );
       }
-      const result = await addItemToOrder(variantId, quantity, {
+      const result = await addItemToOrder(variantId, quantity, customFields, {
         request,
       });
       if (result.addItemToOrder.__typename === 'Order') {

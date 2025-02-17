@@ -14,12 +14,18 @@ import { Breadcrumbs } from '~/components/Breadcrumbs';
 import { APP_META_TITLE } from '~/constants';
 import { CartLoaderData } from '~/routes/api.active-order';
 import { getSessionStorage } from '~/sessions';
-import { ErrorCode, ErrorResult } from '~/generated/graphql';
+import { ErrorCode, ErrorResult, Product } from '~/generated/graphql';
 import Alert from '~/components/Alert';
 import { StockLevelLabel } from '~/components/products/StockLevelLabel';
 import TopReviews from '~/components/products/TopReviews';
 import { ScrollableContainer } from '~/components/products/ScrollableContainer';
 import { useTranslation } from 'react-i18next';
+import { PlateCustomizer } from '~/components/visualizer/doubleAS';
+import { ActionFunctionArgs, LinksFunction } from '@remix-run/node';
+import { getGoogleFontLink } from '~/components/visualizer/utils/font_selectors';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { ItemOptions } from '~/components/visualizer/utils/custom_visualizer';
+
 
 export const meta: MetaFunction = ({ data }) => {
   return [
@@ -31,15 +37,40 @@ export const meta: MetaFunction = ({ data }) => {
   ];
 };
 
+export const links: LinksFunction = () => {
+  return [
+    { rel: 'stylesheet', href: getGoogleFontLink() },
+  ];
+}
+
+function ShippingInformation() {
+  const { t } = useTranslation();
+
+  return (
+    <section className="mt-12 pt-12 border-t text-xs">
+      <h3 className="text-gray-600 font-bold mb-2">
+        {t('product.shippingAndReturns')}
+      </h3>
+      <div className="text-gray-500 space-y-1">
+        <p>{t('product.shippingInfo')}</p>
+        <p>{t('product.shippingCostsInfo')}</p>
+        <p>{t('product.returnsInfo')}</p>
+      </div>
+    </section>
+  );
+}
+
 export async function loader({ params, request }: DataFunctionArgs) {
+  // In the provided code, the params object has a slug attribute because 
+  // the route definition for this component includes a dynamic segment named slug. 
+  // This dynamic segment is part of the URL pattern for the route, and Remix 
+  // automatically extracts it and makes it available in the params object.
   const { product } = await getProductBySlug(params.slug!, { request });
   if (!product) {
     throw new Response('Not Found', {
       status: 404,
     });
   }
-  
-  const customizableOption = product.customFields?.customizableOption;
 
   const sessionStorage = await getSessionStorage();
   const session = await sessionStorage.getSession(
@@ -60,9 +91,25 @@ export const shouldRevalidate: ShouldRevalidateFunction = () => true;
 
 export default function ProductSlug() {
   const { product, error } = useLoaderData<typeof loader>();
+
   const { activeOrderFetcher } = useOutletContext<{
     activeOrderFetcher: FetcherWithComponents<CartLoaderData>;
   }>();
+  /*
+  activeOrderFetcher is a FetcherWithComponents, which is a special component in Remix that allows you to fetch data and render components based on the fetched data.
+  e.g. activeOrderFetcher should have the following properties:
+  - Form: A component that can be used to submit a form to the fetcher.
+  - load: A function to load data from a URL.
+  - submit: A function to submit a form to the fetcher.
+  - ...the return of `Fetcher`
+    - data: The data returned from the fetcher. This data has type `CartLoaderData`
+    - state: The state of the fetcher. This can be 'idle', 'submitting', or 'loading'.
+    - formData: The data submitted to the fetcher.
+  ...
+
+  The entire data structure of activeOrderFetcher can be found in the type definition of FetcherWithComponents
+
+  */
   const { activeOrder } = activeOrderFetcher.data ?? {};
   const addItemToOrderError = getAddItemToOrderError(error);
   const { t } = useTranslation();
@@ -71,7 +118,7 @@ export default function ProductSlug() {
     return <div>{t('product.notFound')}</div>;
   }
 
-  
+  const customizableOption = product.customFields?.customizableOption;
 
   const findVariantById = (id: string) =>
     product.variants.find((v) => v.id === id);
@@ -88,8 +135,7 @@ export default function ProductSlug() {
     activeOrder?.lines.find((l) => l.productVariant.id === selectedVariantId)
       ?.quantity ?? 0;
 
-  
-    
+
   const asset = product.assets[0];
   const brandName = product.facetValues.find(
     (fv) => fv.facet.code === 'brand',
@@ -131,11 +177,10 @@ export default function ProductSlug() {
               <ScrollableContainer>
                 {product.assets.map((asset) => (
                   <div
-                    className={`basis-1/3 md:basis-1/4 flex-shrink-0 select-none touch-pan-x rounded-lg ${
-                      featuredAsset?.id == asset.id
-                        ? 'outline outline-2 outline-primary outline-offset-[-2px]'
-                        : ''
-                    }`}
+                    className={`basis-1/3 md:basis-1/4 flex-shrink-0 select-none touch-pan-x rounded-lg ${featuredAsset?.id == asset.id
+                      ? 'outline outline-2 outline-primary outline-offset-[-2px]'
+                      : ''
+                      }`}
                     onClick={() => {
                       setFeaturedAsset(asset);
                     }}
@@ -166,8 +211,11 @@ export default function ProductSlug() {
                 }}
               />
             </div>
+
+
             <activeOrderFetcher.Form method="post" action="/api/active-order">
               <input type="hidden" name="action" value="addItemToOrder" />
+              {/* When click the button, the above input will be in the request body, with key `action` and value `addItemToOrder` */}
               {1 < product.variants.length ? (
                 <div className="mt-4">
                   <label
@@ -198,6 +246,7 @@ export default function ProductSlug() {
                   </select>
                 </div>
               ) : (
+                // if there is only one variant, don't show the select
                 <input
                   type="hidden"
                   name="variantId"
@@ -215,13 +264,12 @@ export default function ProductSlug() {
                 <div className="flex sm:flex-col1 align-baseline">
                   <button
                     type="submit"
-                    className={`max-w-xs flex-1 ${
-                      activeOrderFetcher.state !== 'idle'
-                        ? 'bg-gray-400'
-                        : qtyInCart === 0
+                    className={`max-w-xs flex-1 ${activeOrderFetcher.state !== 'idle'
+                      ? 'bg-gray-400'
+                      : qtyInCart === 0
                         ? 'bg-primary-600 hover:bg-primary-700'
                         : 'bg-green-600 active:bg-green-700 hover:bg-green-700'
-                    }
+                      }
                                      transition-colors border border-transparent rounded-md py-3 px-8 flex items-center
                                       justify-center text-base font-medium text-white focus:outline-none
                                       focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-primary-500 sm:w-full`}
@@ -251,27 +299,30 @@ export default function ProductSlug() {
                   </button>
                 </div>
               </div>
-              <div className="mt-2 flex items-center space-x-2">
-                <span className="text-gray-500">{selectedVariant?.sku}</span>
-                <StockLevelLabel stockLevel={selectedVariant?.stockLevel} />
-              </div>
-              {addItemToOrderError && (
-                <div className="mt-4">
-                  <Alert message={addItemToOrderError} />
-                </div>
-              )}
-
-              <section className="mt-12 pt-12 border-t text-xs">
-                <h3 className="text-gray-600 font-bold mb-2">
-                  {t('product.shippingAndReturns')}
-                </h3>
-                <div className="text-gray-500 space-y-1">
-                  <p>{t('product.shippingInfo')}</p>
-                  <p>{t('product.shippingCostsInfo')}</p>
-                  <p>{t('product.returnsInfo')}</p>
-                </div>
-              </section>
             </activeOrderFetcher.Form>
+
+            <div className="mt-2 flex items-center space-x-2">
+              <span className="text-gray-500">{selectedVariant?.sku}</span>
+              <StockLevelLabel stockLevel={selectedVariant?.stockLevel} />
+            </div>
+            {addItemToOrderError && (
+              <div className="mt-4">
+                <Alert message={addItemToOrderError} />
+              </div>
+            )}
+
+            {customizableOption === 'doubleAS' &&
+              <div className="container">
+                <activeOrderFetcher.Form method="post" action="/api/active-order">
+                  <input type="hidden" name="action" value="addItemToOrder" />
+                  <input type="hidden" name="variantId" value={selectedVariantId} />
+                  <PlateCustomizer />
+                </activeOrderFetcher.Form>
+              </div>
+            }
+            
+            <ShippingInformation />
+
           </div>
         </div>
       </div>
@@ -283,6 +334,12 @@ export default function ProductSlug() {
 }
 
 export function CatchBoundary() {
+  /*
+  In Remix, CatchBoundary is a special component that you can define in your route modules to handle errors that occur during data loading or rendering.
+  * Error Handling: The CatchBoundary component is used to catch and handle errors that occur during the execution of the loader function or while rendering the component. This allows you to provide a custom error UI for your users.
+  * Component Definition: You define the CatchBoundary component in your route module. Remix will automatically use this component to render any errors that occur within the scope of the route.
+  * Usage Context: In the provided code, the CatchBoundary component is defined to handle errors related to the product page. If an error occurs, such as the product not being found, the CatchBoundary component will render a custom error message.
+  */
   const { t } = useTranslation();
 
   return (

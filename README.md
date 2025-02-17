@@ -73,6 +73,13 @@ Note that the backend mutations, queries in the api will not join the codegen op
 5. `yarn dev` - run the storefront with a local Remix server
 6. `yarn dev:cf` - runs locally with the Cloudflare Pages configuration
 
+### Add dependency
+```
+yarn add [package]
+```
+e.g. `yarn add react-select` 
+(yarn will resolve dependencies. If you use `npm i [package]` you will usually get dependency issue.
+
 ### Vendure Server
 
 This storefront requires a Vendure V2 server. You can either run a local instance, or use our public demo server.  

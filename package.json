@@ -35,7 +35,10 @@
     "@stripe/react-stripe-js": "^1.15.0",
     "@stripe/stripe-js": "^1.44.1",
     "@tailwindcss/forms": "^0.5.3",
+    "@types/chroma-js": "^3.1.1",
+    "bootstrap": "^5.3.3",
     "braintree-web-drop-in": "^1.33.7",
+    "chroma-js": "^3.1.2",
     "clsx": "^1.2.1",
     "cross-env": "^7.0.3",
     "graphql": "^16.6.0",
@@ -49,6 +52,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.0.0",
+    "react-select": "^5.10.0",
     "remix": "^2.4.1",
     "remix-i18next": "^5.5.0",
     "remix-validated-form": "^5.1.5",
@@ -57,6 +61,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20231218.0",
     "@graphql-codegen/cli": "5.0.5",
+    "@graphql-codegen/client-preset": "4.6.2",
     "@graphql-codegen/introspection": "4.0.3",
     "@graphql-codegen/typescript": "^2.8.2",
     "@graphql-codegen/typescript-operations": "^2.5.7",
@@ -73,8 +78,7 @@
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.0",
-    "wrangler": "^3.22.3",
-    "@graphql-codegen/client-preset": "4.6.2"
+    "wrangler": "^3.22.3"
   },
   "engines": {
     "node": ">=18.0.0"
