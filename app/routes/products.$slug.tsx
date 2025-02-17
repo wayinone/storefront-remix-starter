@@ -145,6 +145,9 @@ export default function ProductSlug() {
     selectedVariant?.featuredAsset,
   );
 
+  const [allowATC, setAllowATC] = useState(false);
+
+
   return (
     <div>
       <div className="max-w-6xl mx-auto px-4">
@@ -316,11 +319,19 @@ export default function ProductSlug() {
                 <activeOrderFetcher.Form method="post" action="/api/active-order">
                   <input type="hidden" name="action" value="addItemToOrder" />
                   <input type="hidden" name="variantId" value={selectedVariantId} />
-                  <PlateCustomizer />
+                  <PlateCustomizer allowATC={allowATC} setAllowATC={setAllowATC} />
+
+                <button
+                    type="submit"
+                    disabled={!allowATC}
+                    className={`btn rounded-lg p-2 m-2 ${allowATC ? 'btn-primary bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
+                >
+                    Add to Cart
+                </button>
                 </activeOrderFetcher.Form>
               </div>
             }
-            
+
             <ShippingInformation />
 
           </div>

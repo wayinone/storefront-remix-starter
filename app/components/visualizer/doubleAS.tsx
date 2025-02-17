@@ -17,9 +17,13 @@ export const links: LinksFunction = () => {
 }
 
 
-
-export function PlateCustomizer(
-) {
+export function PlateCustomizer({
+    allowATC,
+    setAllowATC,
+}: {
+    allowATC: boolean;
+    setAllowATC: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
 
     const fetcher = useFetcher();
 
@@ -31,8 +35,6 @@ export function PlateCustomizer(
         font_top: DEFAULT_DISPLAY.font_top,
         font_bottom: DEFAULT_DISPLAY.font_bottom
     });
-
-    const [allowATC, setAllowATC] = useState(false); // Control the ATC button
 
     const [sameColorWarning, setSameColorWarning] = useState(false);
 
@@ -102,14 +104,6 @@ export function PlateCustomizer(
                     <p> H x W (estimated): 1.8 cm x <span className={boardWidth_cm > CONSTRAINTS.maxPlateWidth ? 'text-red-500' : ''}>{boardWidth_cm}</span> cm </p>
                     {boardWidth_cm > CONSTRAINTS.maxPlateWidth && <p className='text-red-500'>Error!: Build width is too wide (more than {CONSTRAINTS.maxPlateWidth}cm). Try changing a font or using lowercase letters.</p>}
                 </div>
-
-                <button
-                    type="submit"
-                    disabled={!allowATC}
-                    className={`btn rounded-lg p-2 m-2 ${allowATC ? 'btn-primary bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
-                >
-                    Add to Cart
-                </button>
             </div>
     );
 }
