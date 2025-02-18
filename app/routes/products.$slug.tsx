@@ -119,6 +119,7 @@ export default function ProductSlug() {
   }
 
   const customizableOption = product.customFields?.customizableOption;
+  console.log(customizableOption);
 
   const findVariantById = (id: string) =>
     product.variants.find((v) => v.id === id);
@@ -145,7 +146,7 @@ export default function ProductSlug() {
     selectedVariant?.featuredAsset,
   );
 
-  const [allowATC, setAllowATC] = useState(false);
+  const [allowATC, setAllowATC] = useState(true);
 
 
   return (
@@ -276,9 +277,9 @@ export default function ProductSlug() {
                                      transition-colors border border-transparent rounded-md py-3 px-8 flex items-center
                                       justify-center text-base font-medium text-white focus:outline-none
                                       focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-primary-500 sm:w-full`}
-                    disabled={activeOrderFetcher.state !== 'idle'}
+                    disabled={(activeOrderFetcher.state !== 'idle') || (!allowATC)}
                   >
-                    {qtyInCart ? (
+                    {(qtyInCart && !customizableOption)? (
                       <span className="flex items-center">
                         <CheckIcon className="w-5 h-5 mr-1" /> {qtyInCart}{' '}
                         {t('product.inCart')}
@@ -302,35 +303,31 @@ export default function ProductSlug() {
                   </button>
                 </div>
               </div>
-            </activeOrderFetcher.Form>
 
-            <div className="mt-2 flex items-center space-x-2">
-              <span className="text-gray-500">{selectedVariant?.sku}</span>
-              <StockLevelLabel stockLevel={selectedVariant?.stockLevel} />
-            </div>
-            {addItemToOrderError && (
-              <div className="mt-4">
-                <Alert message={addItemToOrderError} />
+
+
+              <div className="mt-2 flex items-center space-x-2">
+                <span className="text-gray-500">{selectedVariant?.sku}</span>
+                <StockLevelLabel stockLevel={selectedVariant?.stockLevel} />
               </div>
-            )}
+              {addItemToOrderError && (
+                <div className="mt-4">
+                  <Alert message={addItemToOrderError} />
+                </div>
 
-            {customizableOption === 'doubleAS' &&
-              <div className="container">
-                <activeOrderFetcher.Form method="post" action="/api/active-order">
+              )}
+
+              {customizableOption === 'doubleAS' &&
+                <div className="container">
                   <input type="hidden" name="action" value="addItemToOrder" />
                   <input type="hidden" name="variantId" value={selectedVariantId} />
                   <PlateCustomizer allowATC={allowATC} setAllowATC={setAllowATC} />
+                </div>
+              }
 
-                <button
-                    type="submit"
-                    disabled={!allowATC}
-                    className={`btn rounded-lg p-2 m-2 ${allowATC ? 'btn-primary bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
-                >
-                    Add to Cart
-                </button>
-                </activeOrderFetcher.Form>
-              </div>
-            }
+
+            </activeOrderFetcher.Form>
+
 
             <ShippingInformation />
 

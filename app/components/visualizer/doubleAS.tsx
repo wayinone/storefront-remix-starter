@@ -107,27 +107,3 @@ export function PlateCustomizer({
             </div>
     );
 }
-
-// define the action that do the submit, for test purpose, just print the input text
-// note that action is executed at server side
-// export const action = async ({ request }: ActionFunctionArgs) => {
-//     const data = new URLSearchParams(await request.text());
-
-//     console.log(data);
-
-//     const itemOptions: ItemOptions = {
-//         text_top: data.get('text_top') || '',
-//         text_bottom: data.get('text_bottom') || '',
-//         primary_color: data.get('primary_color') || '',
-//         base_color: data.get('base_color') || '',
-//         font_top: data.get('font_top') || '',
-//         font_bottom: data.get('font_bottom') || ''
-//     };
-
-//     return new Response(JSON.stringify({ itemOptions }), {
-//         status: 200,
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//     });
-// };
