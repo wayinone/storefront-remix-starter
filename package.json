@@ -37,7 +37,7 @@
     "@tailwindcss/forms": "^0.5.3",
     "@types/chroma-js": "^3.1.1",
     "bootstrap": "^5.3.3",
-    "braintree-web-drop-in": "^1.33.7",
+    "braintree-web-drop-in": "^1.44.1",
     "chroma-js": "^3.1.2",
     "clsx": "^1.2.1",
     "cross-env": "^7.0.3",

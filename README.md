@@ -150,6 +150,10 @@ Follow the usual procedure for setting up a project in Netlify/CF Pages and poin
 
 **Be sure to change the cookie secret in [app/sessions.ts](./app/sessions.ts) for production use!**
 
+## Notes
+* PDP: `app/routes/product.$slug`
+* the right slider of shopping cart: `app/components/cart/CartTray.tsx` (used in `app/root.tsx`)
+
 ## License
 
 MIT
