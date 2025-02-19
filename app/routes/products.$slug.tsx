@@ -119,7 +119,6 @@ export default function ProductSlug() {
   }
 
   const customizableOption = product.customFields?.customizableOption;
-  console.log(customizableOption);
 
   const findVariantById = (id: string) =>
     product.variants.find((v) => v.id === id);
