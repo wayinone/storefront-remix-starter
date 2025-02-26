@@ -26,20 +26,11 @@ export function BraintreeDropIn(props: {
     if (braintreeInstance) {
       try {
         const result = await braintreeInstance.requestPaymentMethod();
-
         const formData = new FormData();
         formData.set('paymentMethodCode', 'braintree');
         formData.set('paymentNonce', result.nonce);
-
-        let request: Request;
-        request = new Request('');
-
-        await addPaymentToOrder(
-          { method: 'braintree', metadata: result },
-          { request },
-        );
-
         submit(formData, { method: 'post' });
+        // The submit of the formData will then trigger the `action` function in routes/checkout.payment.tsx
       } catch (e) {
         alert(e);
         setProcessing(false);
