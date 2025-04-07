@@ -89,8 +89,8 @@
     "pwdErrorMessage": "Your password has been updated.",
     "savePassword": "Save Password",
     "changePassword": "Change Password",
-    "changeEmailConfirmation": "awaiting confirmation",
-    "changeEmailButton": "awaiting confirmation",
+    "changeEmailConfirmation": "Awaiting confirmation",
+    "changeEmailButton": "Change E-mail",
     "changeEmailModal": {
       "title": "Change Email Address",
       "heading": "We will send a verification email to your new email address.",

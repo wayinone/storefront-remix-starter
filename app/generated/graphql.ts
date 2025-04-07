@@ -100,6 +100,7 @@ export enum AssetType {
 }
 
 export type AuthenticationInput = {
+  google?: InputMaybe<GoogleAuthInput>;
   native?: InputMaybe<NativeAuthInput>;
 };
 
@@ -1172,6 +1173,10 @@ export enum GlobalFlag {
   Inherit = 'INHERIT',
   True = 'TRUE'
 }
+
+export type GoogleAuthInput = {
+  token: Scalars['String'];
+};
 
 /** Returned when attempting to set the Customer on a guest checkout when the configured GuestCheckoutStrategy does not allow it. */
 export type GuestCheckoutError = ErrorResult & {
@@ -2954,7 +2959,7 @@ export type Query = {
   facet?: Maybe<Facet>;
   /** A list of Facets available to the shop */
   facets: FacetList;
-  generateBraintreeClientToken?: Maybe<Scalars['String']>;
+  generateBraintreeClientToken: Scalars['String'];
   /** Returns information about the current authenticated User */
   me?: Maybe<CurrentUser>;
   /** Returns the possible next states that the activeOrder can transition to */
@@ -2998,6 +3003,12 @@ export type QueryFacetArgs = {
 
 export type QueryFacetsArgs = {
   options?: InputMaybe<FacetListOptions>;
+};
+
+
+export type QueryGenerateBraintreeClientTokenArgs = {
+  includeCustomerId?: InputMaybe<Scalars['Boolean']>;
+  orderId?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -3535,6 +3546,14 @@ export type Zone = Node & {
   updatedAt: Scalars['DateTime'];
 };
 
+export type AuthenticateMutationVariables = Exact<{
+  input: AuthenticationInput;
+  rememberMe?: InputMaybe<Scalars['Boolean']>;
+}>;
+
+
+export type AuthenticateMutation = { __typename?: 'Mutation', authenticate: { __typename: 'CurrentUser', id: string, identifier: string } | { __typename: 'InvalidCredentialsError', errorCode: ErrorCode, message: string } | { __typename: 'NotVerifiedError', errorCode: ErrorCode, message: string } };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
@@ -3662,7 +3681,7 @@ export type CreateStripePaymentIntentMutation = { __typename?: 'Mutation', creat
 export type GenerateBraintreeClientTokenQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GenerateBraintreeClientTokenQuery = { __typename?: 'Query', generateBraintreeClientToken?: string | null };
+export type GenerateBraintreeClientTokenQuery = { __typename?: 'Query', generateBraintreeClientToken: string };
 
 export type CollectionsQueryVariables = Exact<{
   options?: InputMaybe<CollectionListOptions>;
@@ -3932,6 +3951,21 @@ export const ListedProductFragmentDoc = gql`
     }
     ... on SinglePrice {
       value
+    }
+  }
+}
+    `;
+export const AuthenticateDocument = gql`
+    mutation authenticate($input: AuthenticationInput!, $rememberMe: Boolean) {
+  authenticate(input: $input, rememberMe: $rememberMe) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
     }
   }
 }
@@ -4414,6 +4448,9 @@ export const SearchFacetValuesDocument = gql`
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
+    authenticate(variables: AuthenticateMutationVariables, options?: C): Promise<AuthenticateMutation> {
+      return requester<AuthenticateMutation, AuthenticateMutationVariables>(AuthenticateDocument, variables, options) as Promise<AuthenticateMutation>;
+    },
     login(variables: LoginMutationVariables, options?: C): Promise<LoginMutation> {
       return requester<LoginMutation, LoginMutationVariables>(LoginDocument, variables, options) as Promise<LoginMutation>;
     },

@@ -52,13 +52,14 @@ The in the storefront, to be able to use this new field in `routes.product.$slug
       customizableOption
   }
   ```
-3. Then we need to run `yarn generate` to do the codegen to update the type of `product` so that it has the new field.
+3. Then we need to run `yarn generate` (this is defined in package.json -> scripts) to do the codegen to update the type of `product` so that it has the new field.
 
 Note that in `./codegen.yml` there is a `document` option that will glob all the specified (*.tsx or *.ts) file that has `gql` tag and will generate type for them.
 
 Also note, in `http://localhost:3000/shop-api` there is also a `Query.Product` that is defined by the backend UI.
 Note that in the storefront we need to define the mutation again from client side. 
-Note that the backend mutations, queries in the api will not join the codegen operataion. Only the schema and query and mutation with `gql` tag that defined in the `./codegen.yml`-> `document` will participate the `codegen` operation.
+
+Note that the only the schema, query and mutation with `gql` tag that defined in the `./codegen.yml`-> `document` will participate the `codegen` operation.
 
 ## Development
 
@@ -78,7 +79,7 @@ Note that the backend mutations, queries in the api will not join the codegen op
 yarn add [package]
 ```
 e.g. `yarn add react-select` 
-(yarn will resolve dependencies. If you use `npm i [package]` you will usually get dependency issue.
+(yarn will resolve dependencies. If you use `npm i [package]` you will usually get dependency issue.)
 
 ### Vendure Server
 
@@ -87,8 +88,53 @@ If you're looking for V1 support, [75eb880](https://github.com/vendure-ecommerce
 
 #### Code Generation
 
-Whenever the Graphql documents (the constants using the `gql` tag) in the [./app/providers](./app/providers) dir changes,
-you should run `yarn generate` (or `npm run generate`) to generate new sdk definitions from `./codegen.yml`.
+Whenever the Graphql documents (the constants using the `gql` tag) in the [./app/providers](./app/providers) (I think the scope is any ts or tsx file inside of `./app/**.*` but this repo keep all the services, aka providers, in the same folder so it is easier to find) dir changes,
+you should run `yarn generate` (or `npm run generate`) to generate new sdk definitions from `./codegen.yml`. 
+
+Note that We can use `sdk` because in codegen.yaml we have the sdk plug in:
+
+E.g. For `authenticate` mutation that can be found in shop-api, and we want to use the mutation, we can add the following gql in `./app/providers/account.ts`
+
+```
+gql`
+  mutation authenticate($input: AuthenticationInput!, $rememberMe: Boolean) {
+    authenticate(input: $input, rememberMe: $rememberMe) {
+      __typename
+      ... on CurrentUser {
+        id
+        identifier
+      }
+      ... on ErrorResult {
+        errorCode
+        message
+      }
+    }
+  }
+`;
+```
+
+And then run `yarn generate`, then we can use this to define `authenticate` function with sdk.authenticate in a ts file (we can define that at the same file `./app/providers/account.ts` 
+as long as the codegen has already run)
+
+```
+import {
+  AuthenticationInput,
+  AuthenticateMutation,
+} from '~/generated/graphql';
+import { sdk, WithHeaders } from '~/graphqlWrapper';
+
+export const authenticate = async (
+  input: AuthenticationInput,
+  rememberMe: boolean,
+): Promise<WithHeaders<AuthenticateMutation['authenticate']>> => {
+  return sdk.authenticate({ input, rememberMe })
+    .then((res) => ({
+      ...res.authenticate,
+      _headers: res._headers,
+    }));
+}
+
+```
 
 For a more detailed guide on how to work with code generation, check the wiki about [querying custom fields](https://github.com/vendure-ecommerce/storefront-remix-starter/wiki/Querying-custom-fields).
 
@@ -136,9 +182,8 @@ the [BraintreePlugin](https://docs.vendure.io/reference/core-plugins/payments-pl
 
 Currently, `storeCustomersInBraintree` has to be set to `true` in plugin options.
 
-## Public demo
-
-There is a publicly-available demo instance at https://readonlydemo.vendure.io/shop-api
+## Translation
+The translation uses react-i18next package. The json file used for the translation is in [/public/locales](./public/locales/) folder.
 
 ## Deployment
 

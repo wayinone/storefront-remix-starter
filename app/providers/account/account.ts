@@ -8,8 +8,21 @@ import {
   UpdateAddressInput,
   UpdateCustomerInput,
   VerifyCustomerAccountMutation,
+  AuthenticationInput,
+  AuthenticateMutation,
 } from '~/generated/graphql';
 import { QueryOptions, sdk, WithHeaders } from '~/graphqlWrapper';
+
+export const authenticate = async (
+  input: AuthenticationInput,
+  rememberMe: boolean,
+  options: QueryOptions,
+): Promise<WithHeaders<AuthenticateMutation['authenticate']>> => {
+  return sdk.authenticate({ input, rememberMe }, options).then((res) => ({
+      ...res.authenticate,
+      _headers: res._headers,
+    }));
+}
 
 export const login = async (
   email: string,
@@ -117,6 +130,25 @@ export async function updateCustomerPassword(
     .updateCustomerPassword(input, options)
     .then((res) => res.updateCustomerPassword);
 }
+
+// I add the authenticate mutation here for codegen. I want to use it for google login. 
+// I added these line according to the localhost:3000/shop-api doc 
+gql`
+  mutation authenticate($input: AuthenticationInput!, $rememberMe: Boolean) {
+    authenticate(input: $input, rememberMe: $rememberMe) {
+      __typename
+      ... on CurrentUser {
+        id
+        identifier
+      }
+      ... on ErrorResult {
+        errorCode
+        message
+      }
+    }
+  }
+`;
+
 
 gql`
   mutation login($email: String!, $password: String!, $rememberMe: Boolean) {

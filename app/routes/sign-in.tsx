@@ -1,34 +1,73 @@
 import { Link, useFetcher, useSearchParams } from '@remix-run/react';
 import { DataFunctionArgs, json, redirect } from '@remix-run/server-runtime';
-import { login } from '~/providers/account/account';
+import { login, authenticate } from '~/providers/account/account';
 import { ErrorResult } from '~/generated/graphql';
 import { XCircleIcon } from '@heroicons/react/24/solid';
 import { Button } from '~/components/Button';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 
+
+import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
+// import { jwtDecode } from 'jwt-decode';
+  
+
 export async function action({ params, request }: DataFunctionArgs) {
   const body = await request.formData();
-  const email = body.get('email');
-  const password = body.get('password');
-  if (typeof email === 'string' && typeof password === 'string') {
-    const rememberMe = !!body.get('rememberMe');
-    const redirectTo = (body.get('redirectTo') || '/account') as string;
-    const result = await login(email, password, rememberMe, { request });
+  const actionType = body.get('actionType');
+
+  const handleResponse = (result: any, redirectTo: string = '/account') => {
     if (result.__typename === 'CurrentUser') {
       return redirect(redirectTo, { headers: result._headers });
     } else {
-      return json(result, {
-        status: 401,
-      });
+      return json(result, { status: 401 });
     }
+  };
+
+  if (actionType === 'login') {
+    const email = body.get('email');
+    const password = body.get('password');
+    if (typeof email === 'string' && typeof password === 'string') {
+      const rememberMe = !!body.get('rememberMe');
+      const redirectTo = (body.get('redirectTo') || '/account') as string;
+      const result = await login(email, password, rememberMe, { request });
+      return handleResponse(result, redirectTo);
+    }
+  } else if (actionType === 'googleSignIn') {
+    const id_token = body.get('id_token');
+    if (typeof id_token === 'string') {
+      const rememberMe = !!body.get('rememberMe');
+      const result = await authenticate(
+        { google: { token: id_token } },
+        rememberMe,
+        { request }
+      );
+      return handleResponse(result);
+    }
+  } else {
+    return json({ error: 'Invalid action type' }, { status: 400 });
   }
 }
 
+
 export default function SignInPage() {
   const [searchParams] = useSearchParams();
-  const login = useFetcher<ErrorResult>();
+  const login = useFetcher<ErrorResult>(); // This hook is to submit form data to the `action` function
   const { t } = useTranslation();
+
+  const handleGoogleLoginSuccess = (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) {
+      console.error('Credential is missing');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.set('actionType', 'googleSignIn');
+    formData.set('id_token', credentialResponse.credential);
+
+    // Submit the form data to the action function
+    login.submit(formData, { method: 'post' });
+  };
 
   return (
     <>
@@ -67,6 +106,11 @@ export default function SignInPage() {
                   type="hidden"
                   name="redirectTo"
                   value={searchParams.get('redirectTo') ?? undefined}
+                />
+                <input
+                  type="hidden"
+                  name="actionType"
+                  value="login"
                 />
                 <div>
                   <label
@@ -173,6 +217,17 @@ export default function SignInPage() {
                 </div>
               </fieldset>
             </login.Form>
+
+            <div>
+              {/* todo: hide the clientID */}
+              <GoogleOAuthProvider clientId='1094979740920-adnlus5s1491v5214gutbidqo161fff7.apps.googleusercontent.com'>
+                <GoogleLogin
+                  onSuccess={handleGoogleLoginSuccess}
+                  onError={() => console.log('Login Failed')}
+                  auto_select={false}
+                />
+              </GoogleOAuthProvider>
+            </div>
           </div>
         </div>
       </div>

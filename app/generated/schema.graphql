@@ -78,6 +78,7 @@ enum AssetType {
 }
 
 input AuthenticationInput {
+  google: GoogleAuthInput
   native: NativeAuthInput
 }
 
@@ -1281,6 +1282,10 @@ enum GlobalFlag {
   FALSE
   INHERIT
   TRUE
+}
+
+input GoogleAuthInput {
+  token: String!
 }
 
 """
@@ -3269,7 +3274,7 @@ type Query {
 
   """A list of Facets available to the shop"""
   facets(options: FacetListOptions): FacetList!
-  generateBraintreeClientToken: String
+  generateBraintreeClientToken(includeCustomerId: Boolean, orderId: ID): String!
 
   """Returns information about the current authenticated User"""
   me: CurrentUser
