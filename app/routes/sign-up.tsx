@@ -29,7 +29,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const variables = extractRegistrationFormValues(body);
   const result = await registerCustomerAccount({ request }, variables);
   if (result.__typename === 'Success') {
-    return redirect('/sign-up/success');
+    console.log('Registration successful');
+    return redirect('/sign-up-success');
   } else {
     const formError: RegisterValidationErrors = {
       form: result.errorCode,
