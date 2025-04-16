@@ -126,15 +126,18 @@ import { sdk, WithHeaders } from '~/graphqlWrapper';
 export const authenticate = async (
   input: AuthenticationInput,
   rememberMe: boolean,
+  options: QueryOptions,
 ): Promise<WithHeaders<AuthenticateMutation['authenticate']>> => {
-  return sdk.authenticate({ input, rememberMe })
-    .then((res) => ({
+  return sdk.authenticate({ input, rememberMe }, options).then((res) => ({
       ...res.authenticate,
       _headers: res._headers,
     }));
 }
-
 ```
+
+Note that we need to define the QueryOptions here as this came from the codegen with the sdk plugin.
+When using this function, you need to use remix's `action` function so that you can supply `request` as the QueryOptions. See [here](/app/routes/sign-in.tsx) for this function's usage.
+
 
 For a more detailed guide on how to work with code generation, check the wiki about [querying custom fields](https://github.com/vendure-ecommerce/storefront-remix-starter/wiki/Querying-custom-fields).
 
