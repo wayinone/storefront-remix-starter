@@ -1,6 +1,14 @@
 export const APP_META_TITLE = 'Vendure Remix Storefront';
 export const APP_META_DESCRIPTION =
   'A headless commerce storefront starter kit built with Remix & Vendure';
+
+/**
+ * The Google Client ID is used for Google Sign-In in routes/sign-in.tsx. You can create a new one in the
+ * There is no need to hide this as this is a public key.
+ * You can find it in in GCP -> w-and-e project -> Google Auth Plateform -> Client -> DDiligence_dev
+ */
+export const GOOGLE_CLIENT_ID = '1094979740920-adnlus5s1491v5214gutbidqo161fff7.apps.googleusercontent.com';
+
 export const DEMO_API_URL = 'https://readonlydemo.vendure.io/shop-api';
 export let API_URL =
   typeof process !== 'undefined'

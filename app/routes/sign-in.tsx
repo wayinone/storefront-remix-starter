@@ -6,10 +6,10 @@ import { XCircleIcon } from '@heroicons/react/24/solid';
 import { Button } from '~/components/Button';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
+import { GOOGLE_CLIENT_ID } from '~/constants';
 
 
 import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
-// import { jwtDecode } from 'jwt-decode';
   
 
 export async function action({ params, request }: DataFunctionArgs) {
@@ -214,8 +214,7 @@ export default function SignInPage() {
            
 
             <div>
-              {/* todo: hide the clientID */}
-              <GoogleOAuthProvider clientId='1094979740920-adnlus5s1491v5214gutbidqo161fff7.apps.googleusercontent.com'>
+              <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                 <GoogleLogin
                   onSuccess={handleGoogleLoginSuccess}
                   onError={() => console.log('Login Failed')}
