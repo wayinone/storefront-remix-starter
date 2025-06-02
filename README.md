@@ -138,7 +138,6 @@ export const authenticate = async (
 Note that we need to define the QueryOptions here as this came from the codegen with the sdk plugin.
 When using this function, you need to use remix's `action` function so that you can supply `request` as the QueryOptions. See [here](/app/routes/sign-in.tsx) for this function's usage.
 
-
 For a more detailed guide on how to work with code generation, check the wiki about [querying custom fields](https://github.com/vendure-ecommerce/storefront-remix-starter/wiki/Querying-custom-fields).
 
 Or [Vendure doc about codegen](https://docs.vendure.io/guides/storefront/codegen/)
@@ -187,6 +186,9 @@ Currently, `storeCustomersInBraintree` has to be set to `true` in plugin options
 
 ## Translation
 The translation uses react-i18next package. The json file used for the translation is in [/public/locales](./public/locales/) folder.
+
+## Test
+This repo is equipped with `vitest`. See `test` folder for example. Run `yarn test` to run any file that contains `.test.` in the filename.
 
 ## Deployment
 
