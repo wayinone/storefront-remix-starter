@@ -3,14 +3,9 @@ import { ActionFunctionArgs, json, redirect } from '@remix-run/server-runtime';
 import { useState } from 'react';
 import { useFetcher, Link, useActionData } from '@remix-run/react';
 import { ErrorResult } from '~/generated/graphql';
-import { GenericInput } from '~/components/account/GenericInput';
-import { XCircleIcon, CheckIcon } from '@heroicons/react/24/solid';
+import { GenericInput } from '~/components/GenericInput';
+import { FormSubmitMessage, FormSubmitMessageProps } from '~/components/FormSubmitMessage';
 
-
-type FormSubmitMessage = {
-  success: boolean;
-  message?: string;
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
@@ -21,15 +16,16 @@ export async function action({ request }: ActionFunctionArgs) {
   console.log('Password reset request result:', result);
   if (result?.__typename === 'Success') {
     console.log('Password reset request successful');
-    const formSuccess: FormSubmitMessage = {
+    const formSuccess = {
       success: true,
       message: `A password reset link has been sent to ${email}. Please check your inbox.`,
     };
     return json(formSuccess, { status: 200 });
+    
   }
   else {
     console.error('Password reset request failed', result);
-    const formError: FormSubmitMessage = {
+    const formError = {
       success: false,
       message: result?.errorCode || 'An error occurred while processing your request.',
     };
@@ -48,8 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ForgetPasswordPage() {
   const [emailValid, setEmailValid] = useState(false);
-  const formSubmitResult = useActionData<FormSubmitMessage>();
-
+  const formSubmitResult = useActionData<FormSubmitMessageProps>();
 
   return (
     <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -65,22 +60,10 @@ export default function ForgetPasswordPage() {
               isRequired={true}
             />
             {formSubmitResult && (
-              <div className={`rounded-md p-4 ${formSubmitResult.success ? 'bg-green-50' : 'bg-red-50'}`}>                <div className='flex'>
-                  <div className="flex-shrink-0">
-                    {formSubmitResult.success ? (
-                      <CheckIcon className="h-5 w-5 text-green-400" />
-                    ) : (
-                      <XCircleIcon className="h-5 w-5 text-red-400" />
-                    )
-                    }
-                  </div>
-                  <div className='ml-3'>
-                    <h3 className={`text-sm ${formSubmitResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                      {formSubmitResult.message}
-                    </h3>
-                  </div>
-                </div>
-              </div>
+              <FormSubmitMessage
+                success={formSubmitResult.success}
+                message={formSubmitResult.message}
+              />
             )}
             <button
               type="submit"

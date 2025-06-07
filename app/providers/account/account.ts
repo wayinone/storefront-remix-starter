@@ -12,7 +12,7 @@ import {
   AuthenticateMutation,
   CustomerRegisterStatusReturn,
   RequestPasswordResetMutation,
-
+  ResetPasswordMutation,
 } from '~/generated/graphql';
 import { QueryOptions, sdk, WithHeaders } from '~/graphqlWrapper';
 
@@ -327,6 +327,32 @@ gql`
 			__typename
 			... on Success {
 				success
+			}
+			... on ErrorResult {
+				errorCode
+				message
+			}
+		}
+	}
+`;
+
+export const resetPassword = async (
+  token: string,
+  password: string,
+  options: QueryOptions
+): Promise<ResetPasswordMutation['resetPassword']> => {
+  return sdk
+    .resetPassword({ token, password }, options)
+    .then((res) => res.resetPassword);
+};
+
+gql`
+	mutation resetPassword($token: String!, $password: String!) {
+		resetPassword(token: $token, password: $password) {
+			__typename
+			... on CurrentUser {
+				id
+				identifier
 			}
 			... on ErrorResult {
 				errorCode

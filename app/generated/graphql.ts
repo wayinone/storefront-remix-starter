@@ -3660,6 +3660,14 @@ export type RequestPasswordResetMutationVariables = Exact<{
 
 export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset?: { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string } | { __typename: 'Success', success: boolean } | null };
 
+export type ResetPasswordMutationVariables = Exact<{
+  token: Scalars['String'];
+  password: Scalars['String'];
+}>;
+
+
+export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: { __typename: 'CurrentUser', id: string, identifier: string } | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string } | { __typename: 'NotVerifiedError', errorCode: ErrorCode, message: string } | { __typename: 'PasswordResetTokenExpiredError', errorCode: ErrorCode, message: string } | { __typename: 'PasswordResetTokenInvalidError', errorCode: ErrorCode, message: string } | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string } };
+
 export type ActiveChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4139,6 +4147,21 @@ export const RequestPasswordResetDocument = gql`
   }
 }
     `;
+export const ResetPasswordDocument = gql`
+    mutation resetPassword($token: String!, $password: String!) {
+  resetPassword(token: $token, password: $password) {
+    __typename
+    ... on CurrentUser {
+      id
+      identifier
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
 export const ActiveChannelDocument = gql`
     query activeChannel {
   activeChannel {
@@ -4537,6 +4560,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     requestPasswordReset(variables: RequestPasswordResetMutationVariables, options?: C): Promise<RequestPasswordResetMutation> {
       return requester<RequestPasswordResetMutation, RequestPasswordResetMutationVariables>(RequestPasswordResetDocument, variables, options) as Promise<RequestPasswordResetMutation>;
+    },
+    resetPassword(variables: ResetPasswordMutationVariables, options?: C): Promise<ResetPasswordMutation> {
+      return requester<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument, variables, options) as Promise<ResetPasswordMutation>;
     },
     activeChannel(variables?: ActiveChannelQueryVariables, options?: C): Promise<ActiveChannelQuery> {
       return requester<ActiveChannelQuery, ActiveChannelQueryVariables>(ActiveChannelDocument, variables, options) as Promise<ActiveChannelQuery>;
