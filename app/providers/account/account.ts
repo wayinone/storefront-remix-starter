@@ -11,6 +11,8 @@ import {
   AuthenticationInput,
   AuthenticateMutation,
   CustomerRegisterStatusReturn,
+  RequestPasswordResetMutation,
+
 } from '~/generated/graphql';
 import { QueryOptions, sdk, WithHeaders } from '~/graphqlWrapper';
 
@@ -307,4 +309,29 @@ gql`
       isCustomer
     }
   }
+`;
+
+export const requestPasswordReset = async (
+  emailAddress: string, 
+  options: QueryOptions
+): Promise<RequestPasswordResetMutation['requestPasswordReset']> => {
+  return sdk
+    .requestPasswordReset({ emailAddress }, options)
+    .then((res) => res.requestPasswordReset);
+};
+
+
+gql`
+	mutation requestPasswordReset($emailAddress: String!) {
+		requestPasswordReset(emailAddress: $emailAddress) {
+			__typename
+			... on Success {
+				success
+			}
+			... on ErrorResult {
+				errorCode
+				message
+			}
+		}
+	}
 `;

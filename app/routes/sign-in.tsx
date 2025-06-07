@@ -160,12 +160,18 @@ export default function SignInPage() {
                   </div>
 
                   <div className="text-sm">
-                    <a
+                    <Link
+                      to="/forget-password"
+                      className="font-medium text-primary-600 hover:text-primary-500"
+                    >
+                      {t('account.forgotPassword')}
+                    </Link>
+                    {/* <a
                       href="#"
                       className="font-medium text-primary-600 hover:text-primary-500"
                     >
                       {t('account.forgotPassword')}
-                    </a>
+                    </a> */}
                   </div>
                 </div>
 

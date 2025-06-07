@@ -3653,6 +3653,13 @@ export type CustomerRegisterStatusQueryVariables = Exact<{
 
 export type CustomerRegisterStatusQuery = { __typename?: 'Query', customerRegisterStatus: { __typename?: 'CustomerRegisterStatusReturn', isVerified: boolean, isCustomer: boolean } };
 
+export type RequestPasswordResetMutationVariables = Exact<{
+  emailAddress: Scalars['String'];
+}>;
+
+
+export type RequestPasswordResetMutation = { __typename?: 'Mutation', requestPasswordReset?: { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string } | { __typename: 'Success', success: boolean } | null };
+
 export type ActiveChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4118,6 +4125,20 @@ export const CustomerRegisterStatusDocument = gql`
   }
 }
     `;
+export const RequestPasswordResetDocument = gql`
+    mutation requestPasswordReset($emailAddress: String!) {
+  requestPasswordReset(emailAddress: $emailAddress) {
+    __typename
+    ... on Success {
+      success
+    }
+    ... on ErrorResult {
+      errorCode
+      message
+    }
+  }
+}
+    `;
 export const ActiveChannelDocument = gql`
     query activeChannel {
   activeChannel {
@@ -4513,6 +4534,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     customerRegisterStatus(variables: CustomerRegisterStatusQueryVariables, options?: C): Promise<CustomerRegisterStatusQuery> {
       return requester<CustomerRegisterStatusQuery, CustomerRegisterStatusQueryVariables>(CustomerRegisterStatusDocument, variables, options) as Promise<CustomerRegisterStatusQuery>;
+    },
+    requestPasswordReset(variables: RequestPasswordResetMutationVariables, options?: C): Promise<RequestPasswordResetMutation> {
+      return requester<RequestPasswordResetMutation, RequestPasswordResetMutationVariables>(RequestPasswordResetDocument, variables, options) as Promise<RequestPasswordResetMutation>;
     },
     activeChannel(variables?: ActiveChannelQueryVariables, options?: C): Promise<ActiveChannelQuery> {
       return requester<ActiveChannelQuery, ActiveChannelQueryVariables>(ActiveChannelDocument, variables, options) as Promise<ActiveChannelQuery>;
