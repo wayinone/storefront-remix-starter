@@ -10,6 +10,7 @@ export interface OverallPasswordValidationResult {
 
 const COMMON_PASSWORDS = ['password', '1234567', 'qwerty', 'abc123', '111111', 'welcome'];
 
+
 const hasNumber = (password: string): IndividualPasswordValidationResult => {
 	const regex = /\d/;
 	if (!regex.test(password)) {
@@ -98,6 +99,12 @@ export const isStrongPassword = (
 
 	var errorMessages: string[] = [];
 	var isValid = true;
+  if (password.length < 1) {
+    return { 
+      isValid: false,
+      errorMessages: ['*required'],
+    };
+  }
 	for (const validation of validations) {
 		if (!validation.isValid) {
 			// concatenate error messages

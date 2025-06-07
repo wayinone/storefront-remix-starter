@@ -17,7 +17,7 @@ interface PasswordInputProps {
 
 export function PasswordInput(props: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [invalidMessages, setInvalidateMessages] = useState<string[]>([]);
+  const [invalidMessages, setInvalidateMessages] = useState<string[]>(['*required']); // default message, will be removed when the user starts typing
   const [fieldValue, setFieldValue] = useState('');
 
 
@@ -34,7 +34,10 @@ export function PasswordInput(props: PasswordInputProps) {
   }
 
   const checkPasswordRepeat = () => {
-    if (props.passwordToBeRepeated && fieldValue !== props.passwordToBeRepeated) {
+    if (fieldValue === '') {
+      setInvalidateMessages(['*required']);
+      props.setCompleteSignal(false);
+    } else if (props.passwordToBeRepeated && fieldValue !== props.passwordToBeRepeated) {
       setInvalidateMessages(['Passwords do not match']);
       props.setCompleteSignal(false);
     } else {
@@ -64,8 +67,13 @@ export function PasswordInput(props: PasswordInputProps) {
     }
     // If both checkStrongPassword and passwordToBeRepeated are not set, just set the isValid state to true
     if (!props.checkStrongPassword && !props.passwordToBeRepeated) {
-      // setIsValid(true);
-      setInvalidateMessages([]);
+      if (fieldValue === '') {
+        setInvalidateMessages(['*required']);
+        props.setCompleteSignal(false);
+      } else {
+        setInvalidateMessages([]);
+        props.setCompleteSignal(true);
+      }
     }
   }, [fieldValue]); // Run this effect whenever `fieldValue` changes
 
@@ -84,6 +92,8 @@ export function PasswordInput(props: PasswordInputProps) {
           onChange={handleChange}
           className="input-field"
         />
+
+        {/* Check Icon */}
         {props.completeSignal && (
         <div className="absolute inset-y-0 right-6 pr-3 flex items-center">
           <CheckIcon className="text-green-600 w-6 h-6"/>
@@ -104,7 +114,7 @@ export function PasswordInput(props: PasswordInputProps) {
         </div>        
       </div>
       {/* Error message */}
-      {!props.completeSignal && fieldValue!=="" && (
+      {(invalidMessages.length>0) &&(
       <div className="text-xs text-red-700 space-y-0 mt-1">        
         {invalidMessages.map((msg) => (
           <p key={msg} className="mb-1">
