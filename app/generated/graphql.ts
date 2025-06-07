@@ -826,6 +826,12 @@ export type CustomerListOptions = {
   take?: InputMaybe<Scalars['Int']>;
 };
 
+export type CustomerRegisterStatusReturn = {
+  __typename?: 'CustomerRegisterStatusReturn';
+  isCustomer: Scalars['Boolean'];
+  isVerified: Scalars['Boolean'];
+};
+
 export type CustomerSortParameter = {
   createdAt?: InputMaybe<SortOrder>;
   emailAddress?: InputMaybe<SortOrder>;
@@ -2951,6 +2957,7 @@ export type Query = {
   collection?: Maybe<Collection>;
   /** A list of Collections available to the shop */
   collections: CollectionList;
+  customerRegisterStatus: CustomerRegisterStatusReturn;
   /** Returns a list of payment methods and their eligibility based on the current active Order */
   eligiblePaymentMethods: Array<PaymentMethodQuote>;
   /** Returns a list of eligible shipping methods based on the current active Order */
@@ -2993,6 +3000,11 @@ export type QueryCollectionArgs = {
 
 export type QueryCollectionsArgs = {
   options?: InputMaybe<CollectionListOptions>;
+};
+
+
+export type QueryCustomerRegisterStatusArgs = {
+  email: Scalars['String'];
 };
 
 
@@ -3634,6 +3646,13 @@ export type UpdateCustomerPasswordMutationVariables = Exact<{
 
 export type UpdateCustomerPasswordMutation = { __typename?: 'Mutation', updateCustomerPassword: { __typename: 'InvalidCredentialsError', errorCode: ErrorCode, message: string } | { __typename: 'NativeAuthStrategyError', errorCode: ErrorCode, message: string } | { __typename: 'PasswordValidationError', errorCode: ErrorCode, message: string } | { __typename: 'Success', success: boolean } };
 
+export type CustomerRegisterStatusQueryVariables = Exact<{
+  email: Scalars['String'];
+}>;
+
+
+export type CustomerRegisterStatusQuery = { __typename?: 'Query', customerRegisterStatus: { __typename?: 'CustomerRegisterStatusReturn', isVerified: boolean, isCustomer: boolean } };
+
 export type ActiveChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -4091,6 +4110,14 @@ export const UpdateCustomerPasswordDocument = gql`
   }
 }
     `;
+export const CustomerRegisterStatusDocument = gql`
+    query customerRegisterStatus($email: String!) {
+  customerRegisterStatus(email: $email) {
+    isVerified
+    isCustomer
+  }
+}
+    `;
 export const ActiveChannelDocument = gql`
     query activeChannel {
   activeChannel {
@@ -4483,6 +4510,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     updateCustomerPassword(variables: UpdateCustomerPasswordMutationVariables, options?: C): Promise<UpdateCustomerPasswordMutation> {
       return requester<UpdateCustomerPasswordMutation, UpdateCustomerPasswordMutationVariables>(UpdateCustomerPasswordDocument, variables, options) as Promise<UpdateCustomerPasswordMutation>;
+    },
+    customerRegisterStatus(variables: CustomerRegisterStatusQueryVariables, options?: C): Promise<CustomerRegisterStatusQuery> {
+      return requester<CustomerRegisterStatusQuery, CustomerRegisterStatusQueryVariables>(CustomerRegisterStatusDocument, variables, options) as Promise<CustomerRegisterStatusQuery>;
     },
     activeChannel(variables?: ActiveChannelQueryVariables, options?: C): Promise<ActiveChannelQuery> {
       return requester<ActiveChannelQuery, ActiveChannelQueryVariables>(ActiveChannelDocument, variables, options) as Promise<ActiveChannelQuery>;

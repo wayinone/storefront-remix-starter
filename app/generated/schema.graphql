@@ -935,6 +935,11 @@ input CustomerListOptions {
   take: Int
 }
 
+type CustomerRegisterStatusReturn {
+  isCustomer: Boolean!
+  isVerified: Boolean!
+}
+
 input CustomerSortParameter {
   createdAt: SortOrder
   emailAddress: SortOrder
@@ -3258,6 +3263,7 @@ type Query {
 
   """A list of Collections available to the shop"""
   collections(options: CollectionListOptions): CollectionList!
+  customerRegisterStatus(email: String!): CustomerRegisterStatusReturn!
 
   """
   Returns a list of payment methods and their eligibility based on the current active Order

@@ -10,6 +10,7 @@ import {
   VerifyCustomerAccountMutation,
   AuthenticationInput,
   AuthenticateMutation,
+  CustomerRegisterStatusReturn,
 } from '~/generated/graphql';
 import { QueryOptions, sdk, WithHeaders } from '~/graphqlWrapper';
 
@@ -129,6 +130,16 @@ export async function updateCustomerPassword(
   return sdk
     .updateCustomerPassword(input, options)
     .then((res) => res.updateCustomerPassword);
+}
+
+export async function customerRegisterStatus(
+  email: string,
+  options: QueryOptions,
+): Promise<CustomerRegisterStatusReturn>
+ {
+  return sdk
+    .customerRegisterStatus({ email }, options)
+    .then((res) => res.customerRegisterStatus);
 }
 
 // I add the authenticate mutation here for codegen. I want to use it for google login. 
@@ -288,3 +299,12 @@ gql`
   }
 `;
 
+// customerRegisterStatus function came from RegisterHelper @ddligence/ddiligence-plugins
+gql`
+  query customerRegisterStatus($email: String!) {
+    customerRegisterStatus(email: $email) {
+      isVerified
+      isCustomer
+    }
+  }
+`;
